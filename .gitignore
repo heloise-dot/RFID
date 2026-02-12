@@ -1,0 +1,11 @@
+# Node / Python / Arduino temp files
+node_modules/
+venv/
+*.pyc
+*.log
+*.tmp
+.DS_Store
+*.exe
+
+# Ignore everything outside card-scan folder
+# (you are already in the right folder)
