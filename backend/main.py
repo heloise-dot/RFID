@@ -3,20 +3,23 @@ from flask_socketio import SocketIO, emit
 import paho.mqtt.client as mqtt
 import json
 import threading
+import sys
+
+# ─────────── Force UTF-8 for Windows console ───────────
+sys.stdout.reconfigure(encoding='utf-8')
 
 app = Flask(__name__, static_folder='public')
 socketio = SocketIO(app, cors_allowed_origins="*")
 
-# ─────────────────────────────────────────────── CHANGE THIS ─────
-TEAM_ID = "Zephyr"                     # ← same unique ID as in ESP code!
+# ─────────── CHANGE THESE ───────────
+TEAM_ID = "Heloise"                     # ← must match ESP code
 BASE_TOPIC = f"rfid/{TEAM_ID}/"
-# ─────────────────────────────────────────────────────────────────────
 
 STATUS_TOPIC  = BASE_TOPIC + "card/status"
 TOPUP_TOPIC   = BASE_TOPIC + "card/topup"
 BALANCE_TOPIC = BASE_TOPIC + "card/balance"
 
-# MQTT Client
+# ─────────── MQTT Client ───────────
 mqtt_client = mqtt.Client(protocol=mqtt.MQTTv311)
 
 def on_connect(client, userdata, flags, rc):
@@ -26,7 +29,7 @@ def on_connect(client, userdata, flags, rc):
 
 def on_message(client, userdata, msg):
     try:
-        payload = msg.payload.decode('utf-8')
+        payload = msg.payload.decode('utf-8')  # decode safely
         data = json.loads(payload)
         print(f"[MQTT → WS] {msg.topic}: {data}")
         socketio.emit('card_update', data)
@@ -36,14 +39,14 @@ def on_message(client, userdata, msg):
 mqtt_client.on_connect = on_connect
 mqtt_client.on_message = on_message
 
-# Run MQTT in background
+# ─────────── MQTT background thread ───────────
 def mqtt_thread():
     mqtt_client.connect("157.173.101.159", 1883, 60)
     mqtt_client.loop_forever()
 
 threading.Thread(target=mqtt_thread, daemon=True).start()
 
-# HTTP endpoint: receive top-up request from browser
+# ─────────── HTTP endpoint to top-up ───────────
 @app.route('/topup', methods=['POST'])
 def topup():
     data = request.get_json()
@@ -54,19 +57,26 @@ def topup():
         return jsonify({"error": "Invalid uid or amount"}), 400
 
     payload = json.dumps({"uid": uid, "amount": int(amount)})
-    mqtt_client.publish(TOPUP_TOPIC, payload)
+    mqtt_client.publish(TOPUP_TOPIC, payload.encode('utf-8'))  # encode UTF-8
     print(f"[HTTP → MQTT] Published top-up: {payload}")
 
     return jsonify({"success": True})
 
-# Serve dashboard
+# ─────────── Serve dashboard ───────────
 @app.route('/')
 def serve_dashboard():
     return render_template('index.html')
 
+# ─────────── Main ───────────
 if __name__ == '__main__':
     print(f"Backend starting for team: {TEAM_ID}")
     print(f"  Status topic:  {STATUS_TOPIC}")
     print(f"  Topup topic:   {TOPUP_TOPIC}")
     print(f"  Balance topic: {BALANCE_TOPIC}")
-    socketio.run(app, host='0.0.0.0', port=3000, debug=True, allow_unsafe_werkzeug=True)
+    socketio.run(
+        app,
+        host='0.0.0.0',
+        port=3000,
+        debug=True,
+        allow_unsafe_werkzeug=True
+    )

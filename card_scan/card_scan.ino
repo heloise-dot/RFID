@@ -10,7 +10,7 @@ const char* password = "Huawei@123";
 const char* mqtt_server = "157.173.101.159";
 
 // ===== Team & MQTT topics =====
-const char* team_id = "Zephyr";
+const char* team_id = "Heloise";
 String topic_status  = "rfid/" + String(team_id) + "/card/status";
 String topic_topup   = "rfid/" + String(team_id) + "/card/topup";
 String topic_balance = "rfid/" + String(team_id) + "/card/balance";

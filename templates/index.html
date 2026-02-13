@@ -3,222 +3,221 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Zephyr | Premium Ledger</title>
+  <title>Heloise | Premium Ledger</title>
   <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,700;1,6..96,400&family=Inter:wght@200;400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&family=Roboto+Slab:wght@400;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg-deep: #050505;        /* Pitch Black Background */
-      --container-bg: #111111;  /* Gunmetal Gray Container */
-      --panel-inner: #161616;   /* Slightly lighter for contrast */
-      --accent: #ffffff;
-      --text-bright: #ffffff;
-      --text-soft: #a0a0a0;
-      --text-dim: #444444;
-      --border-thin: rgba(255, 255, 255, 0.1);
+      --bg-dark: #0A0A0A;
+      --panel-dark: #1C1C1C;
+      --accent: #FFD700;
+      --text-light: #F5F5F5;
+      --text-muted: #AAAAAA;
+      --border: rgba(255,255,255,0.1);
+      --button-bg: #FFD700;
+      --button-color: #0A0A0A;
+      --shadow: rgba(0,0,0,0.8);
     }
 
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+
     body {
-      background-color: var(--bg-deep);
-      color: var(--text-bright);
-      font-family: 'Inter', sans-serif;
-      margin: 0;
-      height: 100vh;
+      background: var(--bg-dark);
+      color: var(--text-light);
       display: flex;
       justify-content: center;
       align-items: center;
-      /* Subtle radial glow to give depth to the black background */
-      background-image: radial-gradient(circle at center, #0f0f0f 0%, #050505 100%);
+      min-height: 100vh;
+      padding: 20px;
     }
 
     .container {
-      width: 90%;
-      max-width: 1050px;
-      height: 75vh;
-      display: grid;
-      grid-template-columns: 380px 1fr;
-      background: var(--container-bg);
-      border: 1px solid var(--border-thin);
-      box-shadow: 0 50px 100px rgba(0, 0, 0, 0.8);
-      position: relative;
-      overflow: hidden;
-    }
-
-    /* Left Side: Interaction */
-    .panel-left {
-      padding: 60px 45px;
-      background: var(--panel-inner);
-      border-right: 1px solid var(--border-thin);
       display: flex;
-      flex-direction: column;
-    }
-
-    header { margin-bottom: 60px; }
-
-    header h1 {
-      font-family: 'Bodoni Moda', serif;
-      font-size: 3rem;
-      font-weight: 400;
-      margin: 0;
-      letter-spacing: -2px;
-    }
-
-    .tagline {
-      font-size: 0.6rem;
-      text-transform: uppercase;
-      letter-spacing: 5px;
-      color: var(--text-dim);
-      margin-top: 5px;
-    }
-
-    .field { margin-bottom: 45px; }
-
-    label {
-      font-size: 0.55rem;
-      text-transform: uppercase;
-      letter-spacing: 3px;
-      color: var(--text-soft);
-      margin-bottom: 12px;
-      display: block;
-    }
-
-    input {
+      flex-wrap: wrap;
       width: 100%;
-      background: transparent;
-      border: none;
-      border-bottom: 1px solid var(--border-thin);
-      padding: 10px 0;
-      color: var(--text-bright);
-      font-family: 'Bodoni Moda', serif;
-      font-size: 1.6rem;
-      outline: none;
-      transition: border-color 0.4s ease;
+      max-width: 1100px;
+      background: var(--panel-dark);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 20px 50px var(--shadow);
     }
 
-    input:focus { border-bottom-color: var(--accent); }
-
-    button {
-      background: var(--accent);
-      color: var(--bg-deep);
-      border: none;
-      padding: 20px;
-      font-size: 0.7rem;
-      font-weight: 500;
-      text-transform: uppercase;
-      letter-spacing: 4px;
-      cursor: pointer;
-      margin-top: auto;
-      transition: opacity 0.3s;
-    }
-
-    button:hover { opacity: 0.85; }
-
-    /* Right Side: Ledger */
-    .panel-right {
-      padding: 60px;
+    .panel {
+      padding: 40px 30px;
+      flex: 1 1 400px;
       display: flex;
       flex-direction: column;
-      overflow: hidden;
     }
 
-    .log-title {
-      font-family: 'Bodoni Moda', serif;
-      font-size: 1.2rem;
-      font-style: italic;
-      color: var(--text-soft);
+    .panel-left {
+      border-right: 1px solid var(--border);
+      min-width: 320px;
+    }
+
+    .panel-left header {
       margin-bottom: 40px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
     }
 
-    #log {
-      flex-grow: 1;
-      overflow-y: auto;
-      padding-right: 20px;
-    }
-
-    .entry {
-      padding: 30px 0;
-      border-bottom: 1px solid var(--border-thin);
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-end;
-      animation: reveal 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-
-    @keyframes reveal {
-      from { opacity: 0; transform: translateY(15px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .entry-uid {
-      font-size: 0.65rem;
-      color: var(--text-soft);
-      letter-spacing: 1px;
-      display: block;
+    .panel-left h1 {
+      font-family: 'Roboto Slab', serif;
+      font-size: 2.8rem;
+      color: var(--accent);
       margin-bottom: 5px;
     }
 
+    .tagline {
+      color: var(--text-muted);
+      font-weight: 400;
+      font-size: 0.9rem;
+      letter-spacing: 2px;
+    }
+
+    .field {
+      margin-bottom: 25px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    label {
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      margin-bottom: 8px;
+      letter-spacing: 1px;
+    }
+
+    input {
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: transparent;
+      color: var(--text-light);
+      font-size: 1.1rem;
+      outline: none;
+      transition: border-color 0.3s;
+    }
+
+    input:focus { border-color: var(--accent); }
+
+    button {
+      padding: 15px;
+      background: var(--button-bg);
+      color: var(--button-color);
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: transform 0.2s, opacity 0.2s;
+      margin-top: 10px;
+    }
+
+    button:hover { opacity: 0.9; transform: translateY(-2px); }
+
+    .quick-buttons {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+
+    .panel-right {
+      flex: 1.5 1 500px;
+      background: #111111;
+      padding: 40px 30px;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+    }
+
+    .log-title {
+      font-family: 'Roboto Slab', serif;
+      font-size: 1.3rem;
+      color: var(--text-muted);
+      margin-bottom: 25px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    #log {
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .entry {
+      padding: 20px 0;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      animation: fadeIn 0.6s ease forwards;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px);}
+      to { opacity: 1; transform: translateY(0);}
+    }
+
+    .entry-uid {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
     .entry-val {
-      font-family: 'Bodoni Moda', serif;
-      font-size: 2.2rem;
-      line-height: 1;
+      font-family: 'Roboto Slab', serif;
+      font-size: 1.8rem;
+      color: var(--accent);
+      margin-top: 5px;
     }
 
     .entry-status {
-      font-size: 0.5rem;
-      text-transform: uppercase;
-      letter-spacing: 2px;
-      color: var(--text-dim);
-      margin-top: 8px;
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      margin-top: 3px;
     }
 
     .dismiss {
-      font-size: 0.5rem;
-      text-transform: uppercase;
-      letter-spacing: 1.5px;
-      color: var(--text-dim);
+      font-size: 0.65rem;
+      color: #FF5E5E;
       cursor: pointer;
-      transition: color 0.3s;
+      margin-left: 15px;
+      transition: color 0.2s;
     }
 
-    .dismiss:hover { color: #ff5e5e; }
+    .dismiss:hover { color: #FF9999; }
 
-    /* Custom thin scrollbar */
-    #log::-webkit-scrollbar { width: 2px; }
-    #log::-webkit-scrollbar-thumb { background: var(--text-dim); }
   </style>
 </head>
 <body>
 
   <div class="container">
-    <div class="panel-left">
+    <!-- LEFT PANEL -->
+    <div class="panel panel-left">
       <header>
-        <h1>Zephyr</h1>
+        <h1>Heloise</h1>
         <div class="tagline">Financial Integrity</div>
       </header>
 
       <div class="field">
-        <label>Active Identity</label>
+        <label>Active Card UID</label>
         <input id="uid" placeholder="Waiting..." readonly>
       </div>
 
       <div class="field">
         <label>Transaction Amount (RWF)</label>
-        <input id="amount" type="number" placeholder="00.00">
+        <input id="amount" type="number" placeholder="0">
       </div>
 
-      <button onclick="sendTopup()">Authorize Action</button>
+      <button onclick="sendTopup()">Authorize Top-Up</button>
+      <button style="margin-top: 10px; background:#FF5E5E; color:white;" onclick="changeBalance()">Change Balance</button>
     </div>
 
-    <div class="panel-right">
+    <!-- RIGHT PANEL -->
+    <div class="panel panel-right">
       <div class="log-title">
         <span>Ledger Archive</span>
-        <span style="font-size: 0.6rem; letter-spacing: 4px; font-style: normal;">ENCRYPTED</span>
+        <span style="font-size:0.7rem; letter-spacing:2px;">ENCRYPTED</span>
       </div>
-      <div id="log">
-        </div>
+      <div id="log"></div>
     </div>
   </div>
 
@@ -226,46 +225,65 @@
     const socket = io();
     const logDiv = document.getElementById('log');
 
+    // SocketIO: Listen for card updates
     socket.on('card_update', data => {
       const entryId = 'e-' + Math.random().toString(36).substr(2, 5);
       const entry = document.createElement('div');
       entry.className = 'entry';
       entry.id = entryId;
-      
-      let title = data.balance !== undefined ? "Account Balance" : "Successful Top-up";
+
+      let title = data.balance !== undefined ? "Account Balance" : "Successful Top-Up";
       let val = data.balance !== undefined ? data.balance : data.new_balance;
 
       entry.innerHTML = `
         <div>
           <span class="entry-uid">${data.uid}</span>
-          <div class="entry-val">${val.toLocaleString()} <span style="font-size: 0.9rem; font-style: italic; opacity: 0.4;">rwf</span></div>
+          <div class="entry-val">${val.toLocaleString()} RWF</div>
           <div class="entry-status">${title}</div>
         </div>
         <div class="dismiss" onclick="removeEntry('${entryId}')">Dismiss</div>
       `;
-      
+
       logDiv.prepend(entry);
+
       if (data.balance !== undefined) document.getElementById('uid').value = data.uid;
     });
 
     function removeEntry(id) {
-        const el = document.getElementById(id);
-        el.style.opacity = '0';
-        el.style.transform = 'translateX(10px)';
-        setTimeout(() => el.remove(), 400);
+      const el = document.getElementById(id);
+      el.style.opacity = '0';
+      el.style.transform = 'translateX(20px)';
+      setTimeout(() => el.remove(), 300);
     }
 
     function sendTopup() {
       const uid = document.getElementById('uid').value;
-      const amt = document.getElementById('amount').value;
+      const amt = parseInt(document.getElementById('amount').value);
       if(!uid || !amt) return;
 
       fetch('/topup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ uid, amount: parseInt(amt) })
+        body: JSON.stringify({ uid, amount: amt })
       }).then(() => {
-          document.getElementById('amount').value = '';
+        document.getElementById('amount').value = '';
+      });
+    }
+
+    function quickTopup(amount) {
+      document.getElementById('amount').value = amount;
+      sendTopup();
+    }
+
+    function changeBalance() {
+      const uid = document.getElementById('uid').value;
+      const newBalance = parseInt(prompt("Enter new balance for this card (RWF):"));
+      if(!uid || isNaN(newBalance)) return;
+
+      fetch('/topup', {  // reuse /topup endpoint
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ uid, amount: newBalance }) 
       });
     }
   </script>
